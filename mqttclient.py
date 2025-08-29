@@ -6,6 +6,7 @@ Created on 27 jul 2025
 import threading
 import paho.mqtt.client
 import queue
+import json
 
 class cMqttClient(object):
     '''
@@ -59,5 +60,11 @@ class cMqttClient(object):
             self.mqttClient.subscribe(recvCb['topic'])
 
     def publish(self, id, value):
-        pass
+        if isinstance(value, int):
+            msg = { 'idx': id, 'nvalue': value}
+        else:
+            msg = { 'idx': id, 'nvalue': 0, 'svalue': str(value)}
+        payload = json.dumps(msg).encode('utf-8')
+        print(payload)
+        self.mqttClient.publish(self.sendTopic, payload)
         
