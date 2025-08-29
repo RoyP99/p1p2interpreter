@@ -63,7 +63,7 @@ if __name__ == '__main__':
     myMqttClient.start()
     
     nrItems = 0
-    while nrItems < 100:
+    while True: #nrItems < 100:
         id = myMasterQueue.get()
         if id == 1:
             payload = myMainQueue.get()
