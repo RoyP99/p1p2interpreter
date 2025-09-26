@@ -74,8 +74,11 @@ if __name__ == '__main__':
             msg = b'E36 0 ' + f'{reqTemp*10:x}'.encode() + b'\r\n'
             print(msg)
             tn = telnetlib.Telnet(P1P2_MODULE_IP, 23)
+            time.sleep(0.5)
             tn.write(msg)
+            time.sleep(0.5)
             tn.close()
+            #print("WRITTEN")
         nrItems += 1
     myMqttClient.stop()
     print('Done')
