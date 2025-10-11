@@ -43,22 +43,22 @@ if __name__ == '__main__':
     #reg0x35Req = myP1P2Messages.definePacketType(p1p2Message.PACKET_TYPE_8BIT_REG, 0x35, p1p2Message.HDR_0_REQUEST_CNTRL_TO_PERIPH)
 
     reg0x10Resp = myP1P2Messages.definePacketType(p1p2Message.PACKET_TYPE_BIT, 0x10, p1p2Message.HDR_0_RESPONSE_FROM_PERIPH)
-    reg0x10Resp.addSubRegister(18, 0, 'Warmtepomp', 151, p1p2Message.VALUE_TYPE_BIT)
-    reg0x10Resp.addSubRegister(18, 3, 'Circulatiepomp', -1, p1p2Message.VALUE_TYPE_BIT)
-    reg0x10Resp.addSubRegister(19, 1, 'Gasketel', 152, p1p2Message.VALUE_TYPE_BIT)
+    reg0x10Resp.addSubRegister(18, 0, 'Warmtepomp', 151, p1p2Message.VALUE_TYPE_BIT, sendOnlyIfChanged=True)
+    reg0x10Resp.addSubRegister(18, 3, 'Circulatiepomp', -1, p1p2Message.VALUE_TYPE_BIT, sendOnlyIfChanged=True)
+    reg0x10Resp.addSubRegister(19, 1, 'Gasketel', 152, p1p2Message.VALUE_TYPE_BIT, sendOnlyIfChanged=True)
     
     reg0x11Resp = myP1P2Messages.definePacketType(p1p2Message.PACKET_TYPE_BYTES, 0x11, p1p2Message.HDR_0_RESPONSE_FROM_PERIPH)
-    reg0x11Resp.addSubRegister(0, 'TempLWT', 145, p1p2Message.VALUE_TYPE_F8_8)     
-    reg0x11Resp.addSubRegister(4, 'CV Buiten Temp', 163, p1p2Message.VALUE_TYPE_F8_8)     
-    reg0x11Resp.addSubRegister(6, 'TempRWT', 146, p1p2Message.VALUE_TYPE_F8_8)     
-    reg0x11Resp.addSubRegister(12, 'RoomTemp', 147, p1p2Message.VALUE_TYPE_F8_8)     
+    reg0x11Resp.addSubRegister(0, 'TempLWT', 145, p1p2Message.VALUE_TYPE_F8_8, sendOnlyIfChanged=True)     
+    reg0x11Resp.addSubRegister(4, 'CV Buiten Temp', 163, p1p2Message.VALUE_TYPE_F8_8, sendOnlyIfChanged=True)     
+    reg0x11Resp.addSubRegister(6, 'TempRWT', 146, p1p2Message.VALUE_TYPE_F8_8, sendOnlyIfChanged=True)     
+    reg0x11Resp.addSubRegister(12, 'RoomTemp', 147, p1p2Message.VALUE_TYPE_F8_8, sendOnlyIfChanged=True)     
 
     # reg0x14Resp = myP1P2Messages.definePacketType(p1p2Message.PACKET_TYPE_BYTES, 0x14, p1p2Message.HDR_0_REQUEST_CNTRL_TO_PERIPH)
     # reg0x14Resp.addSubRegister(0, 'TempSetpointLWT', 153, p1p2Message.VALUE_TYPE_F8_8)     
     
     reg0x36Req = myP1P2Messages.definePacketType(p1p2Message.PACKET_TYPE_16BIT_REG, 0x36, p1p2Message.HDR_0_REQUEST_CNTRL_TO_PERIPH) 
-    reg0x36Req.addSubRegister(0, 'RoomTargetTemp', -1, p1p2Message.VALUE_TYPE_U16DIV10)    
-    reg0x36Req.addSubRegister(0x0a, 'TempSetpointLWT', 153, p1p2Message.VALUE_TYPE_U16DIV10)    
+    reg0x36Req.addSubRegister(0, 'RoomTargetTemp', -1, p1p2Message.VALUE_TYPE_U16DIV10, sendOnlyIfChanged=True)    
+    reg0x36Req.addSubRegister(0x0a, 'TempSetpointLWT', 153, p1p2Message.VALUE_TYPE_U16DIV10, sendOnlyIfChanged=True)    
     
     myMqttClient.start()
     

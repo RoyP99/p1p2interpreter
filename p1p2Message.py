@@ -49,9 +49,9 @@ class cP1P2MsgBase():
             self.mqttClient.publish(id, val)
     
 class cP1P2MsgBit(cP1P2MsgBase):
-    def addSubRegister(self, startByte, startBit, description, id, valueType):
+    def addSubRegister(self, startByte, startBit, description, id, valueType, sendOnlyIfChanged = False):
         subRegs = self.registerDef['subregs']
-        newSubreg = { 'startbyte': startByte, 'startbit': startBit, 'description': description, 'id': id, 'valuetype': valueType }
+        newSubreg = { 'startbyte': startByte, 'startbit': startBit, 'description': description, 'id': id, 'valuetype': valueType, 'sendOnlyIfChanged': sendOnlyIfChanged, 'prevValue': None }
         subRegs.append(newSubreg)
         
     def handleMsg(self, message):
@@ -64,12 +64,14 @@ class cP1P2MsgBit(cP1P2MsgBase):
                 val = b >> iSubReg['startbit']
                 if iSubReg['valuetype'] == VALUE_TYPE_BIT:
                     val = val & 1
-                self.publish(iSubReg, val)
+                if iSubReg['sendOnlyIfChanged'] == False or iSubReg['prevValue'] != val:
+                    self.publish(iSubReg, val)
+                    iSubReg['prevValue'] = val
             
 class cP1P2MsgBytes(cP1P2MsgBase):
-    def addSubRegister(self, startByte, description, id, valueType):
+    def addSubRegister(self, startByte, description, id, valueType, sendOnlyIfChanged = False):
         subRegs = self.registerDef['subregs']
-        newSubreg = { 'startbyte': startByte, 'description': description, 'id': id, 'valuetype': valueType }
+        newSubreg = { 'startbyte': startByte, 'description': description, 'id': id, 'valuetype': valueType, 'sendOnlyIfChanged': sendOnlyIfChanged, 'prevValue': None }
         subRegs.append(newSubreg)
         
     def handleMsg(self, message):
@@ -84,19 +86,21 @@ class cP1P2MsgBytes(cP1P2MsgBase):
                         val = (-(0x10000 - b)) / 256
                     else:
                         val = b / 256                    
-                self.publish(iSubReg, val)
+                if iSubReg['sendOnlyIfChanged'] == False or iSubReg['prevValue'] != val:
+                    self.publish(iSubReg, val)
+                    iSubReg['prevValue'] = val
                 
 class cP1P2Msg8BitParm(cP1P2MsgBase):
-    def addSubRegister(self, subReg, description, id, valueType):
+    def addSubRegister(self, subReg, description, id, valueType, sendOnlyIfChanged = False):
         subRegs = self.registerDef['subregs']
         for iSubReg in subRegs:
             if iSubReg['subreg'] == subReg:
                 return  # already registrated
-        newSubreg = { 'subreg': subReg, 'description': description, 'id': id, 'valuetype': valueType }
+        newSubreg = { 'subreg': subReg, 'description': description, 'id': id, 'valuetype': valueType, 'sendOnlyIfChanged': sendOnlyIfChanged, 'prevValue': None }
         subRegs.append(newSubreg)
         
     def handleMsg(self, message):
-        print('handle msg ', message, ' ', self.registerDef)
+        #print('handle msg ', message, ' ', self.registerDef)
         while len(message) >= 6:
             # u16div10
             subReg = self.getSubReg(message)
@@ -107,17 +111,17 @@ class cP1P2Msg8BitParm(cP1P2MsgBase):
                     vt = iSubReg['valuetype']
                     if vt == VALUE_TYPE_U8:
                         val = self.getValue(message, 1)
-                    print('found ', iSubReg['description'], ' ', val)
+                    #print('found ', iSubReg['description'], ' ', val)
                     break
             message = message[1:]
 
 class cP1P2Msg16BitParm(cP1P2MsgBase):
-    def addSubRegister(self, subReg, description, id, valueType):
+    def addSubRegister(self, subReg, description, id, valueType, sendOnlyIfChanged = False):
         subRegs = self.registerDef['subregs']
         for iSubReg in subRegs:
             if iSubReg['subreg'] == subReg:
                 return  # already registrated
-        newSubreg = { 'subreg': subReg, 'description': description, 'id': id, 'valuetype': valueType }
+        newSubreg = { 'subreg': subReg, 'description': description, 'id': id, 'valuetype': valueType, 'sendOnlyIfChanged': sendOnlyIfChanged, 'prevValue': None }
         subRegs.append(newSubreg)
         
     def handleMsg(self, message):
@@ -132,7 +136,9 @@ class cP1P2Msg16BitParm(cP1P2MsgBase):
                     vt = iSubReg['valuetype']
                     if vt == VALUE_TYPE_U16DIV10:
                         val = self.getValue(message, 2) / 10
-                    self.publish(iSubReg, val)
+                    if iSubReg['sendOnlyIfChanged'] == False or iSubReg['prevValue'] != val:
+                        self.publish(iSubReg, val)
+                        iSubReg['prevValue'] = val
                     break
             message = message[4:]
             

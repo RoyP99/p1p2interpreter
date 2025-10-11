@@ -65,6 +65,6 @@ class cMqttClient(object):
         else:
             msg = { 'idx': id, 'nvalue': 0, 'svalue': str(value)}
         payload = json.dumps(msg).encode('utf-8')
-        print(payload)
+        #print(payload)
         self.mqttClient.publish(self.sendTopic, payload)
         
