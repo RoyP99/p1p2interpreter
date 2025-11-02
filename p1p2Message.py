@@ -190,17 +190,19 @@ class cP1P2Message(object):
     def handleMessage(self, message):
         #print(message)
         # message starts with 'R '
-        headerDirection = int(message[2:4], 16)
-        headerAddress = int(message[4:6], 16)
-        headerType = int(message[6:8], 16)
-        message = message[8:]
-        #print(headerDirection, ' ', headerAddress, ' ', headerType, ' ', message)
-        # search in registerDefs for registerDef
-        for registerDef in self.registerDefs:
-            if registerDef['register'] == headerType and registerDef['direction'] == headerDirection:
-                # handle message
-                registerDef['parmClass'].handleMsg(message)
-                return
-        
+        try:
+            headerDirection = int(message[2:4], 16)
+            headerAddress = int(message[4:6], 16)
+            headerType = int(message[6:8], 16)
+            message = message[8:]
+            #print(headerDirection, ' ', headerAddress, ' ', headerType, ' ', message)
+            # search in registerDefs for registerDef
+            for registerDef in self.registerDefs:
+                if registerDef['register'] == headerType and registerDef['direction'] == headerDirection:
+                    # handle message
+                    registerDef['parmClass'].handleMsg(message)
+                    return
+        except:
+            pass
         
     # 40F0300000000000000000000000000000AD
