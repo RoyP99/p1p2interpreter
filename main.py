@@ -14,11 +14,13 @@ MQTT_IP_ADDR = '192.168.2.98'
 RECV_TOPIC = 'P1P2/R/073'
 SEND_TOPIC = 'domoticz/in'
 RECV_TOPIC_REQ_ROOM_TEMP = 'domoticz/out/148'
+RECV_TOPIC_REQ_AWT = 'domoticz/out/242'
 P1P2_MODULE_IP = '192.168.2.73'
 
 myMasterQueue = queue.Queue(100)
 myMainQueue = queue.Queue(100)
 myReqRoomTempQueue = queue.Queue(100)
+myReqAWTQueue = queue.Queue(100)
 
 def cbMain(client, userData, message):
     if not myMasterQueue.full():
@@ -32,11 +34,18 @@ def cbReqRoomTemp(client, userData, message):
         myReqRoomTempQueue.put(message.payload)
         myMasterQueue.put(2)
     
+def cbReqAWT(client, userData, message):
+    if not myMasterQueue.full():
+        #print(message.payload)
+        myReqAWTQueue.put(message.payload)
+        myMasterQueue.put(3)
+    
 if __name__ == '__main__':
     #myMainQueue = queue.Queue(100)
     myMqttClient = mqttclient.cMqttClient(MQTT_IP_ADDR, SEND_TOPIC)
     myMqttClient.addReceiveTopic(RECV_TOPIC, cbMain)
     myMqttClient.addReceiveTopic(RECV_TOPIC_REQ_ROOM_TEMP, cbReqRoomTemp)
+    myMqttClient.addReceiveTopic(RECV_TOPIC_REQ_AWT, cbReqAWT)
 
     myP1P2Messages = p1p2Message.cP1P2Message(myMqttClient)
 
@@ -72,6 +81,17 @@ if __name__ == '__main__':
             payload = json.loads(myReqRoomTempQueue.get())
             reqTemp = int(int(payload['svalue1']) / 10 + 15)
             msg = b'E36 0 ' + f'{reqTemp*10:x}'.encode() + b'\r\n'
+            print(msg)
+            tn = telnetlib.Telnet(P1P2_MODULE_IP, 23)
+            time.sleep(0.5)
+            tn.write(msg)
+            time.sleep(0.5)
+            tn.close()
+            #print("WRITTEN")
+        if id == 3:
+            payload = json.loads(myReqAWTQueue.get())
+            reqTemp = int(payload['svalue1'] * 10)
+            msg = b'E36 6 ' + f'{reqTemp:x}'.encode() + b'\r\n'
             print(msg)
             tn = telnetlib.Telnet(P1P2_MODULE_IP, 23)
             time.sleep(0.5)
