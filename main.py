@@ -90,7 +90,7 @@ if __name__ == '__main__':
             #print("WRITTEN")
         if id == 3:
             payload = json.loads(myReqAWTQueue.get())
-            reqTemp = int(payload['svalue1'] * 10)
+            reqTemp = int(float(payload['svalue1']) * 10)
             msg = b'E36 6 ' + f'{reqTemp:x}'.encode() + b'\r\n'
             print(msg)
             tn = telnetlib.Telnet(P1P2_MODULE_IP, 23)
